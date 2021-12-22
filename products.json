@@ -1,0 +1,32 @@
+[
+    {
+        "id": 4456,
+        "nombre": "Ford Fiesta",
+        "color": "Rojo",
+        "precio": 450000,
+        "stock": 40,
+        "codigo": "45A5533J",
+        "publicado": true,
+        "fechaCreacion": "23/12/2014"
+        },
+        {
+			"id": 4457,
+			"nombre": "Ford Focus",
+			"color": "Azul",
+            "precio": 1200000,
+			"stock": 20,
+			"codigo": "45A5534A",
+			"publicado": true,
+			"fechaCreacion": "23/10/2018"
+		},
+        {
+			"id": 4458,
+			"nombre": "Ford Ka",
+			"color": "Negro",
+            "precio": 2100000,
+			"stock": 10,
+			"codigo": "45A1K33J",
+			"publicado": false,
+			"fechaCreacion": "15/08/2020"
+        }
+]
