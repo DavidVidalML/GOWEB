@@ -10,14 +10,14 @@ import (
 )
 
 type Producto struct {
-	Id            int64   `json:"id"`
-	Nombre        string  `json:"nombre"`
-	Color         string  `json:"color"`
-	Precio        float64 `json:"precio"`
-	Stock         int64   `json:"stock"`
-	Codigo        string  `json:"codigo"`
-	Publicado     bool    `json:"publicado"`
-	FechaCreacion string  `json:"fechaCreacion"`
+	Id            int64   `json:"id" binding:"required"`
+	Nombre        string  `json:"nombre" binding:"required"`
+	Color         string  `json:"color" binding:"required"`
+	Precio        float64 `json:"precio" binding:"required"`
+	Stock         int64   `json:"stock" binding:"required"`
+	Codigo        string  `json:"codigo" binding:"required"`
+	Publicado     bool    `json:"publicado" binding:"required"`
+	FechaCreacion string  `json:"fechaCreacion" binding:"required"`
 }
 
 /*
@@ -55,29 +55,33 @@ func HandlerHola(ctx *gin.Context) {
 	})
 }
 func HandlerAllProductos(ctx *gin.Context) {
-	jsonData, err := ioutil.ReadFile("./products.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	productos := []Producto{}
-	if err := json.Unmarshal(jsonData, &productos); err != nil {
-		panic(err)
-	}
+	/*
+		jsonData, err := ioutil.ReadFile("./products.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+		//productos := []Producto{}
+		if err := json.Unmarshal(jsonData, &productos); err != nil {
+			panic(err)
+		}
+	*/
 	ctx.JSON(200, gin.H{
 		"PRODUCTOS ": productos,
 	})
 }
 func HandlerFilterProducts(ctx *gin.Context) {
-	jsonData, err := ioutil.ReadFile("./products.json")
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err,
-		})
-	}
-	productos := []Producto{}
-	if err := json.Unmarshal(jsonData, &productos); err != nil {
-		panic(err)
-	}
+	/*
+		jsonData, err := ioutil.ReadFile("./products.json")
+		if err != nil {
+			ctx.JSON(500, gin.H{
+				"error": err,
+			})
+		}
+		//productos := []Producto{}
+		if err := json.Unmarshal(jsonData, &productos); err != nil {
+			panic(err)
+		}
+	*/
 	var match = false
 	var filteredProd []Producto
 	for _, producto := range productos {
@@ -132,16 +136,18 @@ func HandlerFilterProducts(ctx *gin.Context) {
 }
 
 func HandlerFindProduct(ctx *gin.Context) {
-	jsonData, err := ioutil.ReadFile("./products.json")
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err,
-		})
-	}
-	productos := []Producto{}
-	if err := json.Unmarshal(jsonData, &productos); err != nil {
-		panic(err)
-	}
+	/*
+		jsonData, err := ioutil.ReadFile("./products.json")
+		if err != nil {
+			ctx.JSON(500, gin.H{
+				"error": err,
+			})
+		}
+		//productos := []Producto{}
+		if err := json.Unmarshal(jsonData, &productos); err != nil {
+			panic(err)
+		}
+	*/
 	p := Producto{}
 	encontrado := false
 	for _, producto := range productos {
@@ -160,12 +166,52 @@ func HandlerFindProduct(ctx *gin.Context) {
 		})
 	}
 }
+func HandlerCreateProduct(ctx *gin.Context) {
+	token := ctx.GetHeader("token")
+	myToken := "123456"
+	if token != myToken {
+		ctx.JSON(401, gin.H{
+			"error": "Invalid token",
+		})
+		return
+	}
+	var lastID int64
+	for _, producto := range productos {
+		lastID = producto.Id
+	}
+	var req Producto
+	err2 := ctx.ShouldBindJSON(&req)
+	if err2 != nil {
+		ctx.JSON(400, gin.H{
+			"error": err2,
+		})
+		return
+	}
+	req.Id = lastID + 1
+	productos = append(productos, req)
+	ctx.JSON(200, req)
+
+}
+func cargarProductos() {
+	jsonData, err := ioutil.ReadFile("./products.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	//productos := []Producto{}
+	if err := json.Unmarshal(jsonData, &productos); err != nil {
+		panic(err)
+	}
+}
+
+var productos []Producto
 
 func main() {
 	router := gin.Default()
+	cargarProductos()
 	router.GET("/hello", HandlerHola)
 	router.GET("/allProducts", HandlerAllProductos)
 	router.GET("/filterProducts", HandlerFilterProducts)
 	router.GET("/product/:id", HandlerFindProduct)
+	router.POST("/createProducto", HandlerCreateProduct)
 	router.Run()
 }
